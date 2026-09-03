@@ -1,0 +1,96 @@
+@startuml
+' ====== TYPES & INTERFACES ======
+interface Preparable {
+  +canBeChopped(): boolean
+  +canBeCooked(): boolean
+  +canBePlacedOnPlate(): boolean
+  +chop(): void
+  +cook(): void
+}
+
+interface CookingDevice {
+  +isPortable(): boolean
+  +capacity(): int
+  +canAccept(p: Preparable): boolean
+  +addIngredient(p: Preparable): void
+  +startCooking(): void
+}
+
+enum IngredientState {
+  RAW
+  CHOPPED
+  COOKED
+}
+
+' ====== CORE CLASSES ======
+abstract class Item {
+  -name: String
+  +Item(name: String)
+  +getName(): String
+}
+
+abstract class Ingredient extends Item {
+  -state: IngredientState
+  +Ingredient(name: String, state: IngredientState)
+  +getState(): IngredientState
+  +canBeChopped(): boolean
+  +canBeCooked(): boolean
+  +canBePlacedOnPlate(): boolean
+  +chop(): void
+  +cook(): void
+}
+
+class Dish extends Item {
+  +components: List<Preparable>
+  +Dish(name: String)
+  +addComponent(p: Preparable): void
+  +getComponents(): List<Preparable>
+}
+
+abstract class KitchenUtensil extends Item {
+  +contents: List<Preparable>
+  +KitchenUtensil(name: String)
+  +isPortable(): boolean
+  +capacity(): int
+  +canAccept(p: Preparable): boolean
+  +addIngredient(p: Preparable): void
+  +startCooking(): void
+}
+
+class Plate
+class BoilingPot
+class FryingPan
+class Oven
+
+' ====== INHERITANCE / REALIZATION ======
+Item <|-- Ingredient
+Item <|-- Dish
+Item <|-- KitchenUtensil
+Preparable <|.. Ingredient
+CookingDevice <|.. KitchenUtensil
+
+' ====== SPECIALIZATIONS (utensils) ======
+KitchenUtensil <|-- Plate
+KitchenUtensil <|-- BoilingPot
+KitchenUtensil <|-- FryingPan
+KitchenUtensil <|-- Oven
+
+' ====== RELATIONSHIPS (aggregation) ======
+Dish "1" o-- "*" Preparable : components
+KitchenUtensil "1" o-- "*" Preparable : contents
+
+' ====== NOTES / CONSTRAINTS (ringkas) ======
+note right of BoilingPot
+  canAccept() true hanya untuk
+  beras/pasta
+end note
+
+note right of FryingPan
+  canAccept() true jika state==CHOPPED
+end note
+
+note right of Oven
+  isPortable() == false
+  (diam di cooking station)
+end note
+@enduml
